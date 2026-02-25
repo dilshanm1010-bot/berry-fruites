@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+/>
+<title>BERRY FRUITS</title>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+<!-- ======================================================
+     SPLASH SCREEN
+====================================================== -->
+<div id="splashScreen" class="splash-screen">
+  <div class="splash-logo">
+    <h1>BERRY FRUITS</h1>
+    <p>Inventory & Sales</p>
+  </div>
+  <div class="loader"></div>
+</div>
+
+<!-- ======================================================
+     LOGIN SCREEN
+====================================================== -->
+<div id="loginScreen" class="auth-screen hidden">
+  <div class="auth-appbar">
+    <span class="app-title">BERRY FRUITS</span>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <h2 class="auth-title">Login</h2>
+
+      <div class="input-group">
+        <input id="loginUsername" required>
+        <label>Username</label>
+      </div>
+
+      <div class="input-group">
+        <input id="loginPassword" type="password" required>
+        <label>Password</label>
+      </div>
+
+      <button id="loginBtn" class="btn-primary">LOGIN</button>
+
+      <div class="auth-links">
+        <span onclick="openForgot()">Forgot password?</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     FORGOT PASSWORD
+====================================================== -->
+<div id="forgotScreen" class="auth-screen hidden">
+  <div class="auth-appbar">
+    <span class="back-btn" onclick="backToLogin()">←</span>
+    <span class="app-title">Reset Password</span>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <form onsubmit="event.preventDefault(); resetPassword();">
+        <div class="input-group">
+          <input id="forgotUsername" required>
+          <label>Username</label>
+        </div>
+
+        <div class="input-group">
+          <input id="forgotNewPassword" type="password" required>
+          <label>New Password</label>
+        </div>
+
+        <button type="submit" class="btn-primary">UPDATE</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     PIN SCREEN
+====================================================== -->
+<div id="pinScreen" class="auth-screen hidden">
+  <div class="auth-appbar">
+    <span class="app-title">Unlock</span>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card" style="text-align:center">
+      <i data-lucide="fingerprint" class="fingerprint"></i>
+      <h3>Enter PIN</h3>
+      <input id="pinInput" type="password" maxlength="4">
+      <button class="btn-primary" onclick="unlockPin()">UNLOCK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     MAIN APP
+====================================================== -->
+<div id="erpApp" class="hidden">
+
+<!-- APP BAR -->
+<header class="app-bar">
+  <span class="title">BERRY FRUITS</span>
+  <button class="icon-btn" onclick="logout()">
+    <i data-lucide="log-out"></i>
+  </button>
+</header>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- DASHBOARD -->
+<section id="dashboardSection" class="panel">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Total Sales</span>
+      <strong id="dashTotalSales">₹0</strong>
+    </div>
+
+    <div class="stat-card red">
+      <span>Pending</span>
+      <strong id="dashPending">₹0</strong>
+    </div>
+
+    <div class="stat-card blue">
+      <span>Expenses</span>
+      <strong id="dashExpense">₹0</strong>
+    </div>
+
+    <div class="stat-card green">
+      <span>Net Profit</span>
+      <strong id="dashProfit">₹0</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Low Stock</span>
+      <strong id="dashLowStock">0</strong>
+    </div>
+  </div>
+
+  <div class="reset-card">
+    <div class="reset-header">
+      <i data-lucide="database" class="reset-icon"></i>
+      <div>
+        <h4>System Maintenance</h4>
+        <p>Clear all data and start fresh</p>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="openResetConfirm()">Reset System</button>
+  </div>
+</section>
+
+<!-- INVENTORY -->
+<section id="inventorySection" class="panel hidden">
+  <h3>Add Inventory</h3>
+
+  <form onsubmit="event.preventDefault(); addInventory();">
+    <input id="invDate" type="date">
+    <input id="invFruit" placeholder="Fruit name">
+
+    <div class="row">
+      <input id="invStock" type="number" placeholder="Kg">
+      <input id="invPrice" type="number" placeholder="Cost / Kg">
+    </div>
+
+    <button class="primary-btn">Save</button>
+  </form>
+
+  <table>
+    <tbody id="inventoryTable"></tbody>
+  </table>
+</section>
+
+<!-- SALES -->
+<section id="salesSection" class="panel hidden">
+  <h3>New Sale</h3>
+
+  <form onsubmit="event.preventDefault(); addSale();">
+    <input id="saleDate" type="date">
+    <input id="shop" placeholder="Shop name">
+    <input id="phone" placeholder="Phone">
+
+    <select id="fruitSelect"></select>
+
+    <div class="row">
+      <input id="kg" type="number" placeholder="Kg">
+      <input id="sell" type="number" placeholder="Rate">
+    </div>
+
+    <div class="row">
+      <input id="total" readonly placeholder="Total">
+      <input id="paid" type="number" placeholder="Paid">
+    </div>
+
+    <button class="primary-btn">Complete Sale</button>
+  </form>
+
+  <table>
+    <tbody id="salesTable"></tbody>
+  </table>
+</section>
+
+<!-- LEDGER -->
+<section id="ledgerSection" class="panel hidden">
+  <h2>Shop Ledger</h2>
+  <div id="ledgerContainer" class="ledger-list"></div>
+</section>
+
+<!-- EXPENSE -->
+<section id="expenseSection" class="panel hidden">
+  <h3>Expenses</h3>
+
+  <form onsubmit="event.preventDefault(); addExpense();">
+    <input id="expDate" type="date">
+    <input id="expNote" placeholder="Note">
+    <input id="expAmount" type="number" placeholder="Amount">
+    <button class="primary-btn">Save</button>
+  </form>
+
+  <table>
+    <tbody id="expenseTable"></tbody>
+  </table>
+</section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="active" onclick="nav('dashboardSection')">
+    <i data-lucide="home"></i>
+  </button>
+  <button onclick="nav('inventorySection')">
+    <i data-lucide="box"></i>
+  </button>
+  <button onclick="nav('salesSection')">
+    <i data-lucide="shopping-cart"></i>
+  </button>
+  <button onclick="nav('ledgerSection')">
+    <i data-lucide="layers"></i>
+  </button>
+  <button onclick="nav('expenseSection')">
+    <i data-lucide="credit-card"></i>
+  </button>
+</nav>
+
+</div>
+
+<!-- ======================================================
+     RESET MODAL
+====================================================== -->
+<div id="resetModal" class="modal hidden">
+  <div class="modal-box">
+    <i data-lucide="alert-circle" class="danger-icon"></i>
+    <h3>Clear All Data?</h3>
+    <p>All data will be exported as PDF and then deleted.</p>
+
+    <div class="modal-actions">
+      <button class="danger-btn" onclick="confirmReset()">RESET</button>
+      <button class="secondary-btn" onclick="closeResetConfirm()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================
+     INVOICE MODAL (PROFESSIONAL)
+====================================================== -->
+<div id="invoiceModal" class="modal hidden">
+  <div class="modal-box print-area" id="invoiceArea">
+
+    <div class="invoice-header">
+      <h2>BERRY FRUITS</h2>
+      <p>Wholesale Fruits Supplier</p>
+      <p>Aruvai, Wayanad – Kerala</p>
+      <p>📞 9847103532 | 9961136634</p>
+    </div>
+
+    <hr>
+
+    <h3 class="center">CASH BILL</h3>
+
+    <div class="invoice-meta">
+      <div>
+        <strong>Invoice No:</strong> <span id="invNo"></span><br>
+        <strong>Date:</strong> <span id="invDate"></span>
+      </div>
+      <div>
+        <strong>BILL TO:</strong><br>
+        <span id="invShop"></span>
+      </div>
+    </div>
+
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="invoiceItems"></tbody>
+    </table>
+
+    <div class="invoice-totals">
+      <div>Subtotal: ₹<span id="invTotal"></span></div>
+      <div>Paid: ₹<span id="invPaid"></span></div>
+      <div><strong>Balance Due: ₹<span id="invDue"></span></strong></div>
+    </div>
+
+    <div class="invoice-footer">
+      <div>Payment Mode: Cash / UPI</div>
+      <div class="sign">
+        Authorised Signature<br><br>
+        ______________________
+      </div>
+    </div>
+
+  </div>
+
+  <button class="primary-btn" onclick="exportInvoicePDF()">🔽 Export PDF</button>
+  <button class="secondary-btn" onclick="closeInvoice()">Close</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
